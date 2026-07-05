@@ -455,6 +455,10 @@ body { display: flex; flex-direction: column; height: 100dvh; overflow: hidden; 
 .uplink.on { color: var(--accent); border-color: var(--line-strong); background: rgba(178,219,143,0.06); }
 .uplink.on::before { content: "◉ "; }
 .uplink.na { opacity: 0.45; cursor: default; }
+.uplink.dark { color: var(--warn); border-color: var(--warn); background: rgba(219,179,95,0.07); animation: uplinkPulse 2s ease-in-out infinite; }
+.uplink.dark::before { content: "⚠ "; }
+@keyframes uplinkPulse { 0%,100% { border-color: var(--warn); } 50% { border-color: rgba(219,179,95,0.35); } }
+@media (prefers-reduced-motion: reduce) { .uplink.dark { animation: none; } }
 
 /* ---------- ops chips row ---------- */
 .ops-chips .chip b { color: var(--accent-hot); }

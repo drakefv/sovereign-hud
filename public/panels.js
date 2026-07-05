@@ -253,14 +253,23 @@ function setUplink(txt, cls) {
   uplink.textContent = txt;
   uplink.className = `uplink ${cls || ''}`;
 }
+// server-side subscriber total — the real "can any push land" signal, independent of this device.
+async function serverSubs() {
+  try { const j = await getJson('/api/push/pubkey'); return Number.isFinite(j.subs) ? j.subs : null; }
+  catch { return null; }
+}
 async function uplinkStatus() {
   try {
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) { setUplink('UPLINK N/A', 'na'); return 'na'; }
     if (Notification.permission === 'denied') { setUplink('UPLINK DENIED', 'na'); return 'denied'; }
     const reg = await navigator.serviceWorker.getRegistration();
     const sub = reg && await reg.pushManager.getSubscription();
-    if (sub) { setUplink('UPLINK LINKED', 'on'); return 'linked'; }
-    setUplink('UPLINK OFF', ''); return 'off';
+    const n = await serverSubs();
+    // 0 subscribers = the whole push layer is dark; make it loud regardless of this device's state.
+    if (n === 0) { setUplink(sub ? 'UPLINK LINKED ·0' : 'UPLINK 0 — DARK', 'dark'); return sub ? 'linked' : 'off'; }
+    const tag = n == null ? '' : ` ·${n}`;
+    if (sub) { setUplink(`UPLINK LINKED${tag}`, 'on'); return 'linked'; }
+    setUplink(`UPLINK OFF${tag}`, ''); return 'off';
   } catch (e) { console.error('uplinkStatus', e); setUplink('UPLINK ERR', 'na'); return 'err'; }
 }
 async function uplinkConnect() {
@@ -277,7 +286,8 @@ async function uplinkConnect() {
       method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(sub)
     });
     if (!r.ok) throw new Error('subscribe ' + r.status);
-    setUplink('UPLINK LINKED', 'on');
+    const { subs } = await r.json().catch(() => ({}));
+    setUplink(`UPLINK LINKED${Number.isFinite(subs) ? ` ·${subs}` : ''}`, 'on');
     toast('UPLINK LIVE — the room can reach you now', 'ok');
   } catch (e) {
     console.error('uplinkConnect', e);
@@ -299,6 +309,8 @@ if (uplink) uplink.addEventListener('click', async () => {
 });
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(e => console.error('sw', e));
 uplinkStatus();
+// refresh the server count while the tab is visible (backoff when hidden, per client-poll convention).
+setInterval(() => { if (document.visibilityState === 'visible') uplinkStatus(); }, 30000);
 
 /* ---------- action rail: hold a fleet row to restart ---------- */
 const holdRing = $('hold-ring');
