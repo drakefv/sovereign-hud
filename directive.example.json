@@ -33,6 +33,8 @@
 
   "digest": { "hourEt": 7, "envFile": "C:/path/to/.env" },
 
+  "push": { "contactEmail": "admin@example.com" },
+
   "action": { "pin": "0000", "allow": ["sovereign-hud"] },
 
   "celebrate": null,

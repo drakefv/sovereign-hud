@@ -19,7 +19,10 @@ module.exports = function installPush(app, ctx) {
   let vapid;
   try { vapid = JSON.parse(fs.readFileSync(VAPID_FILE, 'utf8')); }
   catch (e) { log('push disabled — vapid.json missing:', e.message); return { send: null }; }
-  webpush.setVapidDetails('mailto:drakemoyer0@gmail.com', vapid.publicKey, vapid.privateKey);
+  // VAPID contact — the address a push service operator would use to reach you.
+  // Real value lives in gitignored directive.json; public code carries a placeholder.
+  const contact = (readDirective().push || {}).contactEmail || 'admin@example.com';
+  webpush.setVapidDetails('mailto:' + contact, vapid.publicKey, vapid.privateKey);
 
   let subs = [];
   try { subs = JSON.parse(fs.readFileSync(SUBS_FILE, 'utf8')); } catch { /* none yet */ }
