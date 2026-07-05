@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SOVEREIGN — Command HUD</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%230b0e0b'/%3E%3Crect x='5' y='5' width='6' height='6' fill='%23b2db8f'/%3E%3C/svg%3E">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="theme-color" content="#0b0e0b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SOVEREIGN">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+<div class="scanlines" aria-hidden="true"></div>
+<div class="vignette" aria-hidden="true"></div>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark" aria-hidden="true"></span>
+    <div>
+      <h1>SOVEREIGN</h1>
+      <span class="brand-sub">DRAKE EMPIRE / COMMAND TERMINAL</span>
+    </div>
+  </div>
+  <div class="topstats">
+    <div class="topstat"><span class="k">CORE</span><span class="v" id="core-status"><span class="dot dot-warn"></span>SYNC</span></div>
+    <div class="topstat"><span class="k">FLEET</span><span class="v" id="fleet-count">--/--</span></div>
+    <div class="topstat"><span class="k">TASKS</span><span class="v" id="task-count">--</span></div>
+    <div class="topstat"><span class="k">HOST</span><span class="v" id="host-stat">--</span><canvas id="spark-mem" class="spark spark-inline" aria-hidden="true"></canvas></div>
+  </div>
+  <button id="uplink" class="uplink" type="button">UPLINK --</button>
+  <div class="clock">
+    <span id="clock-time">--:--:--</span>
+    <span id="clock-date">--- -- ---</span>
+    <span id="clock-market" class="clock-market">ET --:--</span>
+  </div>
+</header>
+
+<div class="session-bar" aria-label="ET market sessions">
+  <div class="sb-track" id="sb-track"></div>
+</div>
+<div class="econ-chips" id="econ-chips" hidden></div>
+<div class="econ-chips ops-chips" id="ops-chips" hidden></div>
+
+<div class="alerts" id="alerts" hidden></div>
+
+<main class="cockpit">
+
+  <section class="rail rail-left" aria-label="Trading desk and fleet">
+    <div class="panel" style="--i:0">
+      <h2 class="panel-h">NQ DESK <span class="panel-sub">TOPSTEP 150K</span></h2>
+      <div id="nq" class="nq">
+        <div class="loading-line"></div><div class="loading-line w80"></div><div class="loading-line w60"></div>
+      </div>
+    </div>
+    <div class="panel" style="--i:1">
+      <h2 class="panel-h">WAR ROOM <span class="panel-sub">BOOT VERIFY · 9:25 ET</span></h2>
+      <div id="warroom" class="warroom">
+        <div class="loading-line"></div><div class="loading-line w60"></div>
+      </div>
+    </div>
+    <div class="panel" style="--i:1">
+      <h2 class="panel-h">KEYSTONE <span class="panel-sub">PIPELINE · $ FIRST</span></h2>
+      <div id="keystone" class="keystone">
+        <div class="loading-line"></div><div class="loading-line w80"></div>
+      </div>
+    </div>
+    <div class="panel" style="--i:2">
+      <h2 class="panel-h">MEME FLOW <span class="panel-sub">CLEAN-2X · WHO'S BUYING</span></h2>
+      <canvas id="spark-flow" class="spark" aria-hidden="true"></canvas>
+      <div id="flowq" class="flowq">
+        <div class="loading-line"></div><div class="loading-line w80"></div>
+      </div>
+    </div>
+    <div class="panel grow" style="--i:3">
+      <h2 class="panel-h">FLEET <span class="panel-sub">PM2 · HOLD = RESTART</span></h2>
+      <canvas id="spark-restarts" class="spark" aria-hidden="true"></canvas>
+      <div id="fleet" class="fleet">
+        <div class="loading-line"></div><div class="loading-line w80"></div><div class="loading-line w60"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="core" aria-label="Primary directive">
+    <canvas id="core-canvas"></canvas>
+    <div class="core-strip" id="core-strip" hidden></div>
+    <div class="core-ctl" aria-label="Solar system zoom controls">
+      <button id="zoom-out" aria-label="Zoom out">&minus;</button>
+      <button id="zoom-in" aria-label="Zoom in">+</button>
+      <button id="zoom-reset" aria-label="Reset view">R</button>
+    </div>
+    <div class="core-hint" aria-hidden="true">WHEEL / + &minus; ZOOM &nbsp;&middot;&nbsp; DRAG PAN &nbsp;&middot;&nbsp; CLICK PLANET = LANE &nbsp;&middot;&nbsp; R RESET</div>
+    <div class="lane-card" id="lane-card" hidden>
+      <button class="lane-close" id="lane-close" aria-label="Close">&times;</button>
+      <div id="lane-body"></div>
+    </div>
+    <div class="core-overlay">
+      <div class="directive">
+        <span class="directive-label" id="directive-label">PRIMARY DIRECTIVE</span>
+        <span class="directive-value" id="directive-value">SYNCING&hellip;</span>
+        <div class="countdowns" id="countdowns"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="rail rail-right" aria-label="Tasks and intel">
+    <div class="panel" style="--i:0">
+      <h2 class="panel-h">THE TAPE <span class="panel-sub">MERGED EMPIRE FEED · LIVE</span></h2>
+      <div id="tape" class="tape">
+        <div class="loading-line"></div><div class="loading-line w80"></div><div class="loading-line w60"></div>
+      </div>
+    </div>
+    <div class="panel" style="--i:1">
+      <h2 class="panel-h">LAUNCHPAD <span class="panel-sub">ONE TAP TO ANYWHERE</span></h2>
+      <div id="launchpad" class="launchpad"><div class="loading-line"></div><div class="loading-line w60"></div></div>
+    </div>
+    <div class="panel" style="--i:1">
+      <h2 class="panel-h">SCHEDULED OPS <span class="panel-sub">WIN TASKS</span></h2>
+      <div id="tasks" class="tasks">
+        <div class="loading-line"></div><div class="loading-line w80"></div>
+      </div>
+    </div>
+    <div class="panel" style="--i:2">
+      <h2 class="panel-h">LYDIA <span class="panel-sub">VOICE CONSOLE</span></h2>
+      <div id="lydia" class="lydia"><div class="loading-line"></div></div>
+    </div>
+    <div class="panel" style="--i:3">
+      <h2 class="panel-h">LEDGER <span class="panel-sub">150K SIM · DAILY PNL</span></h2>
+      <canvas id="ledger-canvas" class="ledger-canvas"></canvas>
+      <div id="ledger-meta" class="ledger-meta"></div>
+    </div>
+    <div class="panel grow" style="--i:4">
+      <h2 class="panel-h">INTEL <span class="panel-sub">OBSIDIAN</span></h2>
+      <div class="intel-tabs">
+        <button class="tab active" data-tab="context">ACTIVE CONTEXT</button>
+        <button class="tab" data-tab="log">SESSION LOG</button>
+      </div>
+      <pre id="intel" class="intel">syncing obsidian&hellip;</pre>
+    </div>
+  </section>
+
+</main>
+
+<nav class="deckbar" id="deckbar" aria-label="Deck navigation">
+  <button class="deck-btn" data-deck="0" type="button"><span class="deck-glyph">▤</span>DESK</button>
+  <button class="deck-btn active" data-deck="1" type="button"><span class="deck-glyph">◉</span>CORE</button>
+  <button class="deck-btn" data-deck="2" type="button"><span class="deck-glyph">≋</span>OPS</button>
+</nav>
+
+<footer class="ticker-wrap" aria-hidden="true">
+  <div class="ticker" id="ticker"></div>
+</footer>
+
+<canvas id="fx-canvas" class="fx-canvas" aria-hidden="true"></canvas>
+<div id="celebrate-banner" class="celebrate-banner" hidden></div>
+<div id="hold-ring" class="hold-ring" hidden><svg viewBox="0 0 36 36"><circle class="hr-bg" cx="18" cy="18" r="15.5"></circle><circle class="hr-fg" cx="18" cy="18" r="15.5"></circle></svg></div>
+<div id="pin-modal" class="pin-modal" hidden>
+  <div class="pin-box">
+    <div class="pin-title" id="pin-title">RESTART PROCESS</div>
+    <div class="pin-sub" id="pin-sub"></div>
+    <input id="pin-input" class="pin-input" type="password" inputmode="numeric" maxlength="8" placeholder="PIN" autocomplete="off">
+    <div class="pin-actions">
+      <button id="pin-cancel" class="pin-btn" type="button">ABORT</button>
+      <button id="pin-go" class="pin-btn go" type="button">EXECUTE</button>
+    </div>
+    <div class="pin-err" id="pin-err"></div>
+  </div>
+</div>
+<div id="toast" class="toast" hidden></div>
+
+<script src="app.js"></script>
+<script src="panels.js"></script>
+<script src="tape-deck.js"></script>
+</body>
+</html>

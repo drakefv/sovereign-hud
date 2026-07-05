@@ -1,0 +1,10 @@
+node_modules/
+
+# runtime state + secrets — never commit
+# vapid.json = VAPID private push key; push-subs.json = subscriber endpoints;
+# the rest are regenerating ring buffers / watcher state
+data/
+
+*.log
+npm-debug.log*
+.DS_Store

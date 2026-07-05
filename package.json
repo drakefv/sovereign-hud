@@ -1,0 +1,13 @@
+{
+  "name": "sovereign-hud",
+  "version": "1.0.0",
+  "description": "Drake's empire command HUD - live pm2 fleet, scheduled tasks, Obsidian intel",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "web-push": "^3.6.7"
+  }
+}
