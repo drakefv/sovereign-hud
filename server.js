@@ -17,8 +17,16 @@ const FLEET_CACHE_MS = 3000;
 const WALLETS_CACHE_MS = 30000;
 const DEFAULT_TASK_FILTER = 'NQ|Fade|TL-|bot|Tape|watchdog|daemon|life-os';
 
+const DIRECTIVE_FILE = path.join(__dirname, 'directive.json');
+// fresh clone bootstrap: directive.json is gitignored (holds PIN/beacon/accounts),
+// so seed it from the committed template if it's missing
+if (!fs.existsSync(DIRECTIVE_FILE)) {
+  try { fs.copyFileSync(path.join(__dirname, 'directive.example.json'), DIRECTIVE_FILE); }
+  catch (e) { console.error('could not seed directive.json from example:', e.message); }
+}
+
 function readDirective() {
-  return JSON.parse(fs.readFileSync(path.join(__dirname, 'directive.json'), 'utf8'));
+  return JSON.parse(fs.readFileSync(DIRECTIVE_FILE, 'utf8'));
 }
 
 const app = express();

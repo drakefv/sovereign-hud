@@ -1,0 +1,52 @@
+{
+  "_comment": "Template for directive.json — the HUD's live config (re-read every request, no restart needed). Copy to directive.json and fill in real values. directive.json is gitignored: it holds your action PIN, beacon URL, account numbers, and personal targeting. On first boot the server auto-copies this file to directive.json if none exists.",
+
+  "primary": {
+    "label": "PRIMARY DIRECTIVE",
+    "value": "YOUR TOP GOAL",
+    "deadline": "2026-12-31T23:59:59-05:00",
+    "deadlineLabel": "METRIC DEADLINE"
+  },
+  "secondary": [
+    { "label": "SECONDARY COUNTDOWN", "deadline": "2026-12-31T18:00:00-05:00" }
+  ],
+
+  "taskFilter": "daemon|watchdog|bot",
+
+  "nqFleet": [
+    { "label": "LEADER", "account": "00000000", "dir": "data_50k" }
+  ],
+
+  "thresholds": { "restartHot": 5, "restartAlert": 8 },
+
+  "watchlist": [
+    { "process": "some-process", "expect": "stopped", "reason": "why it should not be running" }
+  ],
+
+  "keystone": { "evPerEmail": 80, "batchFile": "C:/path/to/prospect-batch/emails.md" },
+
+  "pals": { "license": "XX000000", "checkMinutes": 60 },
+
+  "warroom": { "daemonTask": "run-live-daemon", "watchdogTask": "run-live-watchdog", "timeStopTask": "close-time-stop" },
+
+  "sniper": { "adDir": "C:/path/to/rendered/ads" },
+
+  "digest": { "hourEt": 7, "envFile": "C:/path/to/.env" },
+
+  "action": { "pin": "0000", "allow": ["sovereign-hud"] },
+
+  "celebrate": null,
+
+  "launchpad": [
+    { "group": "GROUP NAME", "links": [
+      { "label": "SITE", "sub": "SUBTITLE", "url": "https://example.com" },
+      { "label": "HOT LINK", "sub": "HIGHLIGHTED", "url": "https://example.com", "hot": true }
+    ]}
+  ],
+
+  "heartbeatUrl": "https://your-beacon.example.com/beat",
+
+  "laneFacts": {
+    "VENUS": [["KEY", "VALUE"], ["KEY", "VALUE"]]
+  }
+}

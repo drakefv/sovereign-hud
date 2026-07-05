@@ -1,5 +1,9 @@
 node_modules/
 
+# live config — holds action PIN, beacon URL, account numbers, personal targeting.
+# committed as directive.example.json; server seeds directive.json from it on first boot.
+directive.json
+
 # runtime state + secrets — never commit
 # vapid.json = VAPID private push key; push-subs.json = subscriber endpoints;
 # the rest are regenerating ring buffers / watcher state
